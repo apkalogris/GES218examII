@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GES 218: Exam II Intensive Study Guide</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; line-height: 1.6; }
+        h1 { text-align: center; color: #2c3e50; }
+        .tabs { display: flex; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { background-color: #34495e; color: white; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; font-size: 16px; transition: 0.2s; }
+        .tab-btn:hover { background-color: #2c3e50; }
+        .tab-btn.active { background-color: #2980b9; }
+        .tab-content { display: none; max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tab-content.active { display: block; }
+        
+        /* Multiple Choice */
+        .progress { font-weight: bold; color: #7f8c8d; margin-bottom: 15px; }
+        .mc-question { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; display: none; }
+        .mc-question.active-q { display: block; }
+        .mc-options button { display: block; width: 100%; text-align: left; margin: 8px 0; padding: 12px; border: 1px solid #ccc; background: #fafafa; cursor: pointer; border-radius: 4px; font-size: 15px; transition: 0.2s; }
+        .mc-options button:hover:not(:disabled) { background: #e0f7fa; }
+        .correct-ans { background-color: #c8e6c9 !important; border-color: #2e7d32 !important; color: #1b5e20; font-weight: bold; }
+        .wrong-ans { background-color: #ffcdd2 !important; border-color: #c62828 !important; color: #b71c1c; text-decoration: line-through; }
+        .feedback { margin-top: 15px; padding: 10px; background: #f8f9fa; border-left: 4px solid #2980b9; font-style: italic; font-size: 0.95em; display: none; }
+        .nav-btns { margin-top: 20px; display: flex; justify-content: space-between; }
+        .nav-btns button { padding: 10px 20px; cursor: pointer; background: #2980b9; color: white; border: none; border-radius: 4px; }
+        .nav-btns button:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        /* Flashcards */
+        .flashcard { width: 100%; height: 250px; perspective: 1000px; margin-bottom: 20px; cursor: pointer; }
+        .flashcard-inner { width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; position: relative; }
+        .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; padding: 30px; box-sizing: border-box; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); text-align: center; }
+        .flashcard-front { background-color: #3498db; color: white; font-size: 26px; font-weight: bold; }
+        .flashcard-back { background-color: #2ecc71; color: white; font-size: 16px; transform: rotateY(180deg); overflow-y: auto; }
+        .card-nav { text-align: center; margin-top: 10px; }
+        .card-nav button { padding: 10px 20px; cursor: pointer; background: #34495e; color: white; border: none; border-radius: 4px; margin: 0 10px; }
+
+        /* Matching */
+        .matching-container { display: flex; justify-content: space-between; gap: 20px; }
+        .matching-col { width: 48%; display: flex; flex-direction: column; gap: 10px; }
+        .match-item { padding: 12px; background: #ecf0f1; border: 2px solid #bdc3c7; border-radius: 5px; cursor: pointer; text-align: center; font-size: 14px; transition: 0.2s; user-select: none; }
+        .match-item:hover { background: #e2e6e8; }
+        .match-item.selected { border-color: #f39c12; background: #fdf2e9; font-weight: bold; }
+        .match-item.matched { border-color: #27ae60; background: #d5f5e3; cursor: default; color: #2c3e50; opacity: 0.7; }
+        .reset-btn { display: block; margin: 20px auto; padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>GES 218 Exam II: Practice Tracker</h1>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('mc')">Multiple Choice (40 Qs)</button>
+        <button class="tab-btn" onclick="showTab('flashcards')">Flashcards (60 Terms)</button>
+        <button class="tab-btn" onclick="showTab('matching')">Matching Drill</button>
+    </div>
+
+    <div id="mc" class="tab-content active">
+        <h2>Chapters 9-16 Concepts & Critical Thinking</h2>
+        <div class="progress" id="mc-progress">Question 1 of 40</div>
+        <div id="quiz-container"></div>
+        <div class="nav-btns">
+            <button id="prev-btn" onclick="navMC(-1)" disabled>Previous</button>
+            <button id="next-btn" onclick="navMC(1)">Next</button>
+        </div>
+    </div>
+
+    <div id="flashcards" class="tab-content">
+        <h2>Key Terms & Definitions</h2>
+        <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">Click the card to reveal the definition.</p>
+        <div class="flashcard" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+                <div class="flashcard-front" id="fc-front"></div>
+                <div class="flashcard-back" id="fc-back"></div>
+            </div>
+        </div>
+        <div class="card-nav">
+            <button onclick="navCard(-1)">&#8592; Prev</button>
+            <span id="fc-counter" style="font-weight: bold;"></span>
+            <button onclick="navCard(1)">Next &#8594;</button>
+        </div>
+    </div>
+
+    <div id="matching" class="tab-content">
+        <h2>Definition Matching</h2>
+        <p style="text-align:center; font-size:0.9em; color:#7f8c8d;">Select a term on the left, then its definition on the right. (Loads 10 random terms per round).</p>
+        <div class="matching-container">
+            <div class="matching-col" id="match-terms"></div>
+            <div class="matching-col" id="match-defs"></div>
+        </div>
+        <button class="reset-btn" onclick="initMatching()">Load New Round</button>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 60 Textbook Terms (Chapters 9-16)
+        const termData = [
+            { t: "Wetlands", d: "Highly diverse ecosystems in transitional zones between well-drained uplands and deepwater habitats.[cite: 4]" },
+            { t: "Marine Systems", d: "Aquatic systems including coral reefs, rocky cliffs, and sandy shorelines, characterized by high salinity and a lack of freshwater influence.[cite: 4]" },
+            { t: "Estuarine Systems", d: "Coastal areas where freshwater rivers flow into oceans, such as tidal salt marshes and mangrove swamps, diluted by freshwater runoff.[cite: 4]" },
+            { t: "Riverine Systems", d: "Stream environments beginning where a stream originates and ending where it empties into another body.[cite: 4]" },
+            { t: "Turbidity", d: "A measurement of clearness in water based on suspended particles, often sand or other matter.[cite: 4]" },
+            { t: "Abyssal Zone", d: "Oceanic zone lying immediately above the ocean floor, characterized by darkness, intense cold, low dissolved oxygen, and a scarcity of food.[cite: 6]" },
+            { t: "Upwelling", d: "Areas in the ocean that are highly efficient for fish production because food chains typically have only two links.[cite: 6]" },
+            { t: "Point Bar", d: "Depositional feature formed in streams by the accumulation of sediment on the inside bank of channel meanders.[cite: 6]" },
+            { t: "Water Cycle", d: "A circular path of water moving through the ecosphere, powered by solar energy and gravity.[cite: 6]" },
+            { t: "Water Replacement Period", d: "The average time water resides in various parts of the cycle, such as 9 days for the atmosphere and 37,000 years for deep oceans.[cite: 6]" },
+            { t: "Ogallala Aquifer", d: "A massive continental aquifer located in the United States.[cite: 4]" },
+            { t: "Dead Zones", d: "Areas like the Gulf of Mexico experiencing severe water quality degradation caused by agricultural fertilizer runoff and sediment pollution.[cite: 4]" },
+            { t: "Eutrophication", d: "The nutrient enrichment of lakes, categorized as either natural or cultural (human-caused).[cite: 6]" },
+            { t: "Winterkill", d: "Death of freshwater fish in shallow lakes caused by oxygen starvation when snow cover blocks sunlight, halting plant photosynthesis.[cite: 4]" },
+            { t: "Biological Oxygen Demand (BOD)", d: "A water quality measurement indicating the amount of oxygen required by decomposers.[cite: 6]" },
+            { t: "Sea Lamprey", d: "A parasitic aquatic species whose control in the Great Lakes is a major focus of fisheries management.[cite: 6]" },
+            { t: "Bycatch", d: "A major problem in the marine fishing industry referring to the unintentional capture of non-target species.[cite: 6]" },
+            { t: "Aquaculture", d: "The practice of farming aquatic organisms, serving as an alternative to wild capture fisheries, presenting unique pros and cons.[cite: 6]" },
+            { t: "Optimum Yield Principle", d: "A theoretical fisheries management concept aimed at maximizing long-term harvests without depleting the reproductive stock.[cite: 6]" },
+            { t: "Rangelands", d: "Areas of the world that serve as a source of forage, such as grasses and shrubs, for free-ranging native and domestic animals.[cite: 6]" },
+            { t: "Decreasers", d: "A group of highly palatable rangeland plants that tend to decline under heavy grazing pressure.[cite: 6]" },
+            { t: "Increasers", d: "A group of rangeland plants that multiply and grow more abundant as grazing pressure increases.[cite: 6]" },
+            { t: "Invaders", d: "A group of plants, often noxious weeds, that colonize rangelands when native vegetation is depleted by overgrazing.[cite: 6]" },
+            { t: "Deferred-Rotation Grazing", d: "A management system where grazing in specific pastures is delayed until after seed production is completed, allowing forage recovery.[cite: 6]" },
+            { t: "Forestlands", d: "A land cover classification that requires at least 10 percent tree cover to be categorized as a forest.[cite: 4]" },
+            { t: "U.S. Forest Service (USFS)", d: "Federal agency established in 1905 to research forests, manage national forest habitats, and control fires.[cite: 4]" },
+            { t: "Multiple Use-Sustained Yield Act of 1960", d: "Mandated that national forests be managed for multiple uses like wood products, wildlife habitat, and recreation without exhausting the resource.[cite: 4]" },
+            { t: "Clear Cutting", d: "An even-aged stand harvesting method that removes all trees in a given area at once.[cite: 4]" },
+            { t: "Shelterwood Method", d: "An even-aged harvesting strategy where some mature trees are intentionally left behind to provide shelter for new seedlings.[cite: 4]" },
+            { t: "Seed Tree Method", d: "An even-aged harvesting method that leaves a few scattered mature trees specifically to provide seeds for natural reforestation.[cite: 4]" },
+            { t: "Selective Cutting", d: "An uneven-aged harvesting method where individual trees or small groups are carefully chosen and cut.[cite: 4]" },
+            { t: "Strip Cutting", d: "An uneven-aged harvesting method that clears trees in narrow, defined corridors.[cite: 4]" },
+            { t: "Feller-Buncher", d: "Heavy machinery utilized in logging operations to rapidly cut, hold, and gather trees.[cite: 4]" },
+            { t: "Heart-rot", d: "A significant disease affecting forest timber, caused primarily by fungi.[cite: 4]" },
+            { t: "Bark Beetles", d: "Destructive insects that act as major forest pests, increasingly controlled using Integrated Pest Management (IPM).[cite: 4]" },
+            { t: "Wilderness Act of 1964", d: "Federal legislation that helped establish the National Wilderness Preservation System.[cite: 4]" },
+            { t: "Habitat Fragmentation", d: "The progressive destruction of habitat that results in isolated ecological islands, making wildlife highly vulnerable to extinction.[cite: 5]" },
+            { t: "Inbreeding", d: "The mating of close relatives, often promoted by tiny, fragmented habitats, resulting in inferior offspring.[cite: 5]" },
+            { t: "Specialist Species", d: "Organisms with extremely narrow requirements for reproduction and survival, making them highly vulnerable to extinction.[cite: 5]" },
+            { t: "Euryphagous", d: "A type of animal that consumes a wide variety of foods and is therefore highly adaptable for survival.[cite: 4]" },
+            { t: "Stenophagous", d: "An animal with a highly specialized diet, such as the panda bear, making it exceptionally vulnerable to environmental changes.[cite: 4]" },
+            { t: "Ecotone", d: "The transitional boundary or edge where two distinctly different habitats meet.[cite: 4]" },
+            { t: "Edge Effect", d: "The ecological phenomenon where an increase in ecotones impacts wildlife distribution, benefiting some species while harming others.[cite: 4]" },
+            { t: "Corridors", d: "Natural pathways needed to connect fragmented habitats; their disruption severely impacts wildlife movement.[cite: 4]" },
+            { t: "Dispersal of the Young", d: "Animal movement where young individuals migrate to unfamiliar or marginal habitats, often incurring high mortality.[cite: 4]" },
+            { t: "Additive Mortality", d: "A dynamic where hunting or other human factors directly add to the total natural death rate of a wildlife population.[cite: 6]" },
+            { t: "Compensatory Mortality", d: "A dynamic where human-induced mortality replaces natural deaths, keeping the overall mortality rate relatively unchanged.[cite: 6]" },
+            { t: "Browse Line", d: "A distinct, visible line on trees indicating the maximum height where starving deer have consumed all reachable vegetation.[cite: 4]" },
+            { t: "Duck Factory", d: "The pothole region of North America responsible for producing more than half of the continent's waterfowl.[cite: 4]" },
+            { t: "Game Animals", d: "Wildlife species that are legally and traditionally hunted for sport, sustenance, or population control.[cite: 4]" },
+            { t: "Nongame Animals", d: "Wildlife species not typically hunted, which are valued for nonconsumptive activities like bird watching and photography.[cite: 6]" },
+            { t: "Fall and Spring Overturns", d: "Seasonal mixing events in lakes that redistribute oxygen and nutrients, holding great significance for the survival of aquatic organisms.[cite: 4]" },
+            { t: "Kirtland's Warbler", d: "A highly specialized, endangered bird that requires jack pine habitats specifically between 6 and 15 years old to nest.[cite: 5]" },
+            { t: "Ruffed Grouse", d: "A bird reliant on forest succession, utilizing young aspen stands for breeding and older stands for winter food and cover.[cite: 5]" },
+            { t: "Prescription Drugs", d: "A major societal and medical benefit derived from plant species, emphasizing the human cost of plant extinction.[cite: 4]" },
+            { t: "Coastal Wetlands", d: "Critical aquatic environments that provide a natural defense mechanism protecting shores from physical erosion.[cite: 4]" },
+            { t: "Ecological Succession", d: "The predictable progression of vegetation stages, which wildlife managers intentionally manipulate to improve specific animal habitats.[cite: 6]" },
+            { t: "Lead Poisoning", d: "A severe mortality factor in waterfowl populations caused by the ingestion of toxic shot materials from hunting.[cite: 6]" },
+            { t: "Let it Burn Policy", d: "A 1972 paradigm shift in fire management by the National Park Service recognizing the ecological necessity of natural fires.[cite: 4]" },
+            { t: "Love Canal Disaster", d: "A historic environmental tragedy directly related to hazardous waste disposal and subsequent water pollution.[cite: 4]" }
+        ];
+
+        // 40 Analytical MCQs (Chapters 9-16)
+        const mcqData = [
+            { q: "According to the study guide, how do coastal wetlands provide direct value to human societies?", o: ["By naturally filtering oceanic salt into freshwater.", "They protect the shore from physical erosion.", "They serve as the primary source of groundwater for the Ogallala aquifer.", "They provide completely predator-free environments for waterfowl."], a: 1, f: "Correct! Coastal wetlands absorb wave energy and provide a critical natural defense that protects the shore from erosion.[cite: 4]" },
+            { q: "What is the primary cause of the severe 'dead zones' found in the Gulf of Mexico?", o: ["The accidental release of radioactive flowback from offshore drilling.", "Agricultural fertilizer runoff and sediment pollution from the continent.", "The overharvesting of oysters and natural filter feeders.", "Heat-waste dumping from nuclear cooling towers."], a: 1, f: "Correct! The massive influx of agricultural fertilizers and sediment runoff drives eutrophication and creates severe dead zones in the Gulf.[cite: 4]" },
+            { q: "The annual rate of wetland conversion in the US has been decreasing over the past 50 years. Why does this NOT mean we should relax our wetland protection policies?", o: ["Because wetlands are actively migrating northward.", "Because 50 percent of the original wetlands have already been permanently drained for agricultural purposes.", "Because the Clean Water Act is set to expire soon.", "Because wetlands now cover 90 percent of the US."], a: 1, f: "Correct! Even with slowed conversion rates, the sheer historical loss (50% permanently drained) makes the remaining wetlands incredibly vital.[cite: 4]" },
+            { q: "How do fall and spring overturns impact lake ecosystems?", o: ["They cause immediate, total fish mortality by freezing the bottom.", "They mix the water column, which is highly significant for the survival of aquatic organisms by redistributing dissolved oxygen and nutrients.", "They permanently separate the epilimnion from the hypolimnion.", "They turn freshwater lakes into saltwater lakes temporarily."], a: 1, f: "Correct! These seasonal overturns circulate the lake water, replenishing oxygen in deep waters and bringing nutrients to the surface.[cite: 4]" },
+            { q: "What is the primary ecological difference between marine systems and estuarine systems?", o: ["Marine systems consist exclusively of freshwater.", "Marine systems lack freshwater influence, while estuarine systems are coastal zones diluted by freshwater runoff from rivers.", "Estuarine systems contain only non-game animals.", "Marine systems are only found in the deep abyssal zone."], a: 1, f: "Correct! Estuaries are transitional coastal zones where freshwater rivers dilute the high salinity of ocean water.[cite: 4]" },
+            { q: "What two physical forces power the continuous movement of the hydrologic (water) cycle?", o: ["Geothermal heat and magnetic polarity.", "Solar energy and gravity.", "Lunar tides and atmospheric friction.", "Photosynthesis and mechanical energy."], a: 1, f: "Correct! Solar energy drives evaporation, and gravity pulls precipitation back to Earth and drives streamflow.[cite: 6]" },
+            { q: "Why is diverting water from abundant areas to scarce areas generally considered an unsustainable approach to water shortages?", o: ["It makes the water highly radioactive.", "It is heavily disruptive to the source ecosystem, extremely expensive, and treats water scarcity as a mere distribution problem rather than an overuse problem.", "It instantly drains the world's oceans.", "It is strictly illegal under international law."], a: 1, f: "Correct! Moving massive amounts of water ignores the root cause of overuse and severely degrades the riparian environment from which it is taken.[cite: 4]" },
+            { q: "According to the study guide, how can flooding be controlled sustainably?", o: ["By abandoning all coastal cities immediately.", "By measuring snowpacks, protecting watersheds, and restricting development in flood-plains.", "By building massive concrete dams across every major river.", "By paving floodplains to speed up water flow."], a: 1, f: "Correct! Sustainable approaches focus on accommodating natural water cycles, such as protecting the watershed and limiting floodplain development.[cite: 4]" },
+            { q: "What precise phenomenon causes severe 'winterkills' of freshwater fish?", o: ["Freezing of the entire water column from top to bottom.", "Oxygen starvation occurring in shallow lakes when snow cover blocks sunlight, halting oxygen-producing photosynthesis by aquatic plants.", "The sudden influx of salt applied to winter roads.", "Invasion by migrating Arctic predators."], a: 1, f: "Correct! The ice and snow block solar energy, stopping photosynthesis, while decomposers quickly consume the remaining dissolved oxygen.[cite: 4]" },
+            { q: "Which of the following characteristics defines the 'Abyssal Zone' of the ocean?", o: ["It is the warmest, most well-lit zone of the ocean.", "It lies immediately above the ocean floor, characterized by total darkness, intense cold, low dissolved oxygen, and a scarcity of food.", "It is the primary zone for commercial aquaculture.", "It contains the highest concentration of phytoplankton in the world."], a: 1, f: "Correct! The abyssal zone is the deep, dark, cold layer resting just above the ocean floor.[cite: 6]" },
+            { q: "Why are areas of ocean upwelling incredibly efficient for fish production?", o: ["They are artificially heated by humans.", "Many of the food chains in these regions have only two links, directly channeling nutrients into high amounts of consumable biomass.", "They are entirely closed off from predators.", "They consist purely of freshwater."], a: 1, f: "Correct! Upwellings bring nutrient-rich waters to the surface, supporting short, highly efficient food chains.[cite: 6]" },
+            { q: "What distinguishes a euryphagous animal from a stenophagous animal?", o: ["A euryphagous animal lives only in water.", "A euryphagous animal consumes a wide variety of food making it adaptable, while a stenophagous animal has a highly specialized diet (like a panda).", "A stenophagous animal can fly, whereas a euryphagous animal cannot.", "A euryphagous animal requires specific old-growth timber to survive."], a: 1, f: "Correct! 'Eury' implies wide tolerance/diet, while 'Steno' implies narrow tolerance/diet, dictating their vulnerability to habitat changes.[cite: 7]" },
+            { q: "How does habitat fragmentation directly threaten wildlife populations?", o: ["It makes the animals grow too large.", "It creates isolated ecological islands, forcing populations into tiny habitats that lack sufficient resources and promote dangerous inbreeding.", "It turns herbivores into carnivores.", "It eliminates all edge effects."], a: 1, f: "Correct! The destruction of continuous habitat leaves tiny isolated patches, which forces inbreeding and limits genetic diversity.[cite: 5]" },
+            { q: "How does the U.S. Forest Service define 'forestlands'?", o: ["Any land managed by the federal government.", "Land that possesses at least 10 percent tree cover.", "Land containing solely old-growth timber.", "Any area with over 50 percent canopy closure."], a: 1, f: "Correct! A minimum of 10 percent tree cover is the threshold to be officially classified as forestland.[cite: 4]" },
+            { q: "Under the Multiple Use-Sustained Yield Act of 1960, how are national forests legally required to be managed?", o: ["Solely as untouched wilderness preserves.", "For multiple overlapping uses like wood products, wildlife habitat, rangelands, and recreation, all balanced to prevent resource depletion.", "Strictly for maximum short-term timber profits.", "They are required to be sold to private logging companies."], a: 1, f: "Correct! The Act mandates that the Forest Service balance multiple competing interests sustainably.[cite: 4]" },
+            { q: "What defines a 'Selective Cutting' harvesting method?", o: ["Cutting every single tree in a given area.", "It is an uneven-aged stand method where individual trees or small groups are carefully chosen and harvested to maintain forest structure.", "Cutting narrow strips of trees in sequential order.", "Using airplanes to harvest trees from the canopy."], a: 1, f: "Correct! Selective cutting preserves the overall uneven-aged structure of the forest by only removing specific, mature trees.[cite: 4]" },
+            { q: "Which disease is listed as the primary pathogenic cause of injury to standing timber in forests?", o: ["Avian flu.", "Heart-rot, caused primarily by fungi.", "Dutch elm disease.", "Pine beetle rot."], a: 1, f: "Correct! Heart-rot is a fungal disease that hollows out and destroys the valuable interior wood of mature trees.[cite: 4]" },
+            { q: "Why did the National Park Service adopt a 'Let it burn' paradigm shift for wildfires in 1972?", o: ["They ran out of water to fight fires.", "They recognized that low-flame controlled fires naturally reduce fire hazards by removing litter, prepare seedbeds, and improve wildlife habitat.", "They decided forests were no longer economically valuable.", "All firefighting equipment was transferred to the military."], a: 1, f: "Correct! The NPS realized that total fire exclusion was unnatural and that prescribed burns were ecologically necessary.[cite: 4]" },
+            { q: "What is the defining characteristic of a 'Specialist' species like the Kirtland's warbler?", o: ["They can adapt to live in urban cities.", "They have incredibly narrow requirements for survival, such as needing specific jack pine trees between 6 and 15 years old.", "They eat only invasive species.", "They migrate globally every three months."], a: 1, f: "Correct! Specialists are highly vulnerable to extinction because if their specific, narrow habitat requirement disappears, they cannot adapt.[cite: 5]" },
+            { q: "What is an ecotone in the context of wildlife ecology?", o: ["A device used to track animal migration.", "The transitional boundary or 'edge' where two different habitats meet, which highly influences species interspersion.", "The deep zone of a lake where no light reaches.", "A specialized diet consisting of insects."], a: 1, f: "Correct! Ecotones create edge effects, providing overlapping resources that often attract a diverse concentration of wildlife.[cite: 7]" },
+            { q: "How does the 'Dispersal of the Young' often negatively impact populations like the Bald Eagle?", o: ["The young stay in the nest forever, consuming all local food.", "Young eagles migrate to unfamiliar or marginal habitats, where they incur high mortality rates from predators and accidents.", "They interbreed with other bird species.", "They instantly become stenophagous."], a: 1, f: "Correct! Pushed out of prime territory by adults, the dispersing young are forced into marginal areas where survival is much harder.[cite: 7]" },
+            { q: "What is the primary difference between additive and compensatory mortality in wildlife management?", o: ["Additive is caused by disease, compensatory by weather.", "Additive mortality directly increases the total death rate, while compensatory mortality replaces natural deaths, keeping the overall rate stable.", "Compensatory mortality is illegal.", "Additive mortality only affects male animals."], a: 1, f: "Correct! If hunting is compensatory, the harvested animals would have died anyway from winter starvation or disease.[cite: 6]" },
+            { q: "What fundamental ecological role do rangelands primarily serve?", o: ["They provide a massive sink for urban sewage.", "They act as a primary source of forage (grasses and shrubs) for free-ranging native and domestic animals.", "They provide the majority of the nation's timber.", "They are the main source of commercial aquaculture."], a: 1, f: "Correct! Rangelands are vast open ecosystems that support grazing for both wildlife and livestock.[cite: 6]" },
+            { q: "What geographic reality characterizes the United States' rangelands?", o: ["They are exclusively found along the eastern seaboard.", "More than 99 percent of the nation's rangeland is located west of the Mississippi River.", "They are entirely contained within the state of Texas.", "They have all been converted to dense forests."], a: 1, f: "Correct! Due to precipitation patterns, the vast majority of arid and semi-arid grazing land is in the western US.[cite: 6]" },
+            { q: "How does a 'Deferred-Rotation' grazing system function to protect rangelands?", o: ["Cattle are fed grain exclusively for three years.", "Grazing in specific pastures is delayed until after seed production is completed to allow forage recovery over a multi-year cycle.", "It replaces native grasses with corn.", "It requires moving cattle across state lines every month."], a: 1, f: "Correct! By deferring grazing during critical growth and seeding periods, the range plants can naturally repopulate.[cite: 6]" },
+            { q: "What physical feature defines the 'Point Bar' in stream environments?", o: ["A deep pool where fish hide.", "A depositional feature formed by the accumulation of sediment on the inside bank of a stream channel's meander.", "The fastest-moving riffle section of a river.", "A man-made dam blocking fish migration."], a: 1, f: "Correct! As water slows on the inside curve of a meander, it drops its sediment load, forming a point bar.[cite: 6]" },
+            { q: "How does high turbidity physically impact aquatic environments?", o: ["It increases the water temperature to boiling points.", "It measures high levels of suspended particles (like sand or organic matter), which degrades water quality and limits light penetration for plants.", "It removes all salt from the water.", "It causes rapid ice formation."], a: 1, f: "Correct! Turbidity clouds the water, which can smother eggs, clog fish gills, and halt aquatic plant photosynthesis.[cite: 4]" },
+            { q: "What poses a major historic threat to the survival of waterfowl in North America's 'Duck Factory'?", o: ["Overpopulation of predatory bald eagles.", "The extensive draining of potholes and wetlands for agricultural use, combined with periodic droughts.", "Excessive planting of wild rice.", "Urban light pollution disorienting migrations."], a: 1, f: "Correct! The destruction of the prairie potholes for farming severely limits the critical nesting habitat for ducks.[cite: 4]" },
+            { q: "In forestry harvesting, what is a Feller-Buncher?", o: ["A person who counts tree rings.", "Heavy machinery used during logging operations to rapidly cut, hold, and gather trees.", "A chemical pesticide used on bark beetles.", "A specific type of uneven-aged cutting pattern."], a: 1, f: "Correct! This highly efficient machine has revolutionized the speed and scale at which modern logging operations can harvest trees.[cite: 4]" },
+            { q: "Which federal agencies share the responsibility of managing the National Wilderness Preservation System?", o: ["Only the EPA and FEMA.", "The National Park Service, U.S. Forest Service, Fish and Wildlife Service, and Bureau of Land Management.", "The Department of Defense and the Coast Guard.", "State-level Departments of Natural Resources."], a: 1, f: "Correct! The 1964 Wilderness Act overlays protection on lands already managed by these four primary federal agencies.[cite: 4]" },
+            { q: "How does ecological succession directly benefit the Ruffed Grouse?", o: ["They only live in 500-year-old climax forests.", "They rely heavily on different successional stages of aspen forests; using young aspen for breeding, and older stands for winter food and cover.", "They require completely barren, burned soil to lay eggs.", "Succession eliminates all their natural predators."], a: 1, f: "Correct! Grouse need a patchwork of different forest ages, which is why managers often use clearcutting or fire to continually reset succession for them.[cite: 5]" },
+            { q: "What is the 'Edge Effect' as it relates to wildlife habitat fragmentation?", o: ["The tendency for animals to fall off cliffs.", "The ecological result of habitat fragmentation that artificially increases ecotones, which can benefit some species (like quail) but severely harm interior-dependent species.", "The warming of ocean waters near the coastline.", "The removal of all trees along a riverbank."], a: 1, f: "Correct! While traditional management praised 'edge' for game species, we now know extreme fragmentation creates too much edge, harming biodiversity.[cite: 4]" },
+            { q: "Why are Kirtland's warblers highly vulnerable to extinction?", o: ["They are heavily hunted for their feathers.", "They are extreme specialists whose specific nesting grounds in Michigan must be continually renewed by controlled burns to remain viable.", "They only eat one rare species of oceanic plankton.", "They cannot fly long distances."], a: 1, f: "Correct! Because they only nest in 6-15 year old jack pines, suppressing natural fires nearly drove them to extinction.[cite: 5]" },
+            { q: "What is one of the most critical direct values that plants provide to modern human medicine?", o: ["They provide the rubber for hospital beds.", "A highly significant percentage of human prescription drugs are derived directly from natural plant compounds.", "They absorb x-ray radiation.", "They are used as surgical tools."], a: 1, f: "Correct! This utilitarian argument highlights that driving plant species to extinction permanently erodes our potential pharmaceutical resources.[cite: 4]" },
+            { q: "What visual evidence in a forest strongly indicates that a deer population is suffering from overpopulation and starvation?", o: ["Excessive numbers of shed antlers.", "A distinct 'browse line' on the trees, indicating the exact maximum height where the deer have consumed all reachable vegetation.", "Large piles of uneaten acorns.", "The complete absence of bark beetles."], a: 1, f: "Correct! A browse line is a stark indicator that the population has vastly exceeded the habitat's carrying capacity for food.[cite: 4]" },
+            { q: "What is a major criticism of utilizing large dams to solve regional water shortages?", o: ["They generate too much electricity.", "While they boost human welfare, they are highly disruptive to riparian ecosystems, trap sediment, and can be unsustainable over the long term.", "They make the water too cold to drink.", "They randomly release water during droughts."], a: 1, f: "Correct! Dams fundamentally alter stream flow, temperature, and sediment transport, severely impacting native aquatic life.[cite: 6]" },
+            { q: "What is the ecological purpose of establishing wildlife corridors?", o: ["To provide hunting access for humans.", "To physically connect fragmented habitats, allowing animals to migrate securely and mix genetically, thus preventing inbreeding.", "To route water away from wetlands.", "To act as firebreaks against forest fires."], a: 1, f: "Correct! Corridors fight the negative impacts of fragmentation by stitching isolated ecological islands back together.[cite: 4]" },
+            { q: "In the context of global fisheries, what does the critical term 'bycatch' refer to?", o: ["Fish caught illegally at night.", "The massive, unintended capture and subsequent death of non-target marine species, which is a major international conservation concern.", "The quota of fish allowed to be caught per boat.", "Fish raised on artificial farms."], a: 1, f: "Correct! Modern fishing gear is often non-selective, resulting in huge amounts of wasted bycatch (dolphins, turtles, wrong fish species).[cite: 6]" },
+            { q: "How does the concept of 'Optimum Yield' differ fundamentally from maximum yield in fisheries management?", o: ["Optimum yield requires killing all predators first.", "It seeks to balance the harvest of fish for economic benefit with biological limits, ensuring the long-term reproductive capacity of the stock is not impaired.", "Optimum yield allows unlimited fishing by all nations.", "It only applies to freshwater sport fishing."], a: 1, f: "Correct! Optimum yield factors in ecological health and long-term sustainability rather than just extracting the maximum possible immediate tonnage.[cite: 6]" },
+            { q: "Which specific factor drastically reduces the reproductive potential and survival of freshwater fish in polluted waters?", o: ["Excessive aquatic plant growth producing too much oxygen.", "A severe drop in dissolved oxygen; levels below 3 parts per million impair swimming, growth, and food conversion efficiency.", "The introduction of artificial spawning beds.", "High levels of calcium from limestone."], a: 1, f: "Correct! Fish are incredibly sensitive to dissolved oxygen levels, and pollution (like sewage causing high BOD) rapidly depletes this vital resource.[cite: 6]" }
+        ];
+
+        let currentMC = 0;
+        const quizContainer = document.getElementById('quiz-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressTxt = document.getElementById('mc-progress');
+
+        function loadMCQs() {
+            quizContainer.innerHTML = '';
+            mcqData.forEach((item, index) => {
+                let div = document.createElement('div');
+                div.className = `mc-question ${index === 0 ? 'active-q' : ''}`;
+                div.id = `mcq-${index}`;
+                
+                let html = `<p style="font-size: 18px;"><strong>${item.q}</strong></p><div class="mc-options">`;
+                item.o.forEach((opt, oIndex) => {
+                    html += `<button onclick="checkAnswer(this, ${index}, ${oIndex})">${opt}</button>`;
+                });
+                html += `</div><div class="feedback" id="feedback-${index}">${item.f}</div>`;
+                div.innerHTML = html;
+                quizContainer.appendChild(div);
+            });
+        }
+
+        function navMC(dir) {
+            document.getElementById(`mcq-${currentMC}`).classList.remove('active-q');
+            currentMC += dir;
+            document.getElementById(`mcq-${currentMC}`).classList.add('active-q');
+            
+            prevBtn.disabled = currentMC === 0;
+            nextBtn.disabled = currentMC === mcqData.length - 1;
+            progressTxt.innerText = `Question ${currentMC + 1} of 40`;
+        }
+
+        function checkAnswer(btn, qIndex, oIndex) {
+            const options = btn.parentElement.children;
+            for(let opt of options) { opt.disabled = true; } 
+            const feedback = document.getElementById(`feedback-${qIndex}`);
+            feedback.style.display = "block";
+            
+            if(oIndex === mcqData[qIndex].a) {
+                btn.classList.add('correct-ans');
+            } else {
+                btn.classList.add('wrong-ans');
+                options[mcqData[qIndex].a].classList.add('correct-ans');
+            }
+        }
+
+        // --- FLASHCARD LOGIC ---
+        let currentCard = 0;
+        function updateCard() {
+            document.getElementById('fc-front').innerHTML = termData[currentCard].t;
+            document.getElementById('fc-back').innerHTML = `<p>${termData[currentCard].d}</p>`;
+            document.getElementById('fc-counter').innerText = `${currentCard + 1} / ${termData.length}`;
+            document.querySelector('.flashcard').classList.remove('flipped');
+        }
+        function navCard(dir) {
+            currentCard = (currentCard + dir + termData.length) % termData.length;
+            updateCard();
+        }
+
+        // --- MATCHING LOGIC ---
+        let selectedTerm = null;
+        let selectedDef = null;
+        let matchesFound = 0;
+
+        function initMatching() {
+            const termsCol = document.getElementById('match-terms');
+            const defsCol = document.getElementById('match-defs');
+            termsCol.innerHTML = '';
+            defsCol.innerHTML = '';
+            matchesFound = 0;
+            selectedTerm = null;
+            selectedDef = null;
+            
+            let roundData = [...termData].sort(() => 0.5 - Math.random()).slice(0, 10);
+            let terms = [...roundData].sort(() => 0.5 - Math.random());
+            let defs = [...roundData].sort(() => 0.5 - Math.random());
+
+            terms.forEach(t => {
+                let div = document.createElement('div');
+                div.className = 'match-item';
+                div.innerText = t.t;
+                div.onclick = () => selectMatch(div, t.t, 'term');
+                termsCol.appendChild(div);
+            });
+
+            defs.forEach(d => {
+                let div = document.createElement('div');
+                div.className = 'match-item';
+                div.innerText = d.d;
+                div.onclick = () => selectMatch(div, d.t, 'def');
+                defsCol.appendChild(div);
+            });
+        }
+
+        function selectMatch(element, id, type) {
+            if (element.classList.contains('matched')) return;
+
+            element.parentElement.querySelectorAll('.match-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            if (type === 'term') selectedTerm = { element, id };
+            else selectedDef = { element, id };
+
+            if (selectedTerm && selectedDef) {
+                if (selectedTerm.id === selectedDef.id) {
+                    selectedTerm.element.classList.replace('selected', 'matched');
+                    selectedDef.element.classList.replace('selected', 'matched');
+                    matchesFound++;
+                    if(matchesFound === 10) {
+                        setTimeout(() => alert("Round Complete! Click 'Load New Round' to practice 10 new terms."), 300);
+                    }
+                } else {
+                    let t = selectedTerm.element, d = selectedDef.element;
+                    setTimeout(() => {
+                        t.classList.remove('selected');
+                        d.classList.remove('selected');
+                    }, 600);
+                }
+                selectedTerm = null;
+                selectedDef = null;
+            }
+        }
+
+        // Initialize App
+        loadMCQs();
+        updateCard();
+        initMatching();
+    </script>
+</body>
+</html>
